@@ -3,7 +3,7 @@ It is a Voice Chatbot app to practice German language skills.
 
 It takes voice input in german from user.
 
-Bot generates answer via blenderbot as text.
+Bot generates response via blenderbot as text.
 
 After that, app sends the audio version of text in german. 
 
