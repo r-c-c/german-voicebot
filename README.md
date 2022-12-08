@@ -1,6 +1,10 @@
 # german-voicebot
 It is a Voice Chatbot Gradio app to practice German language skills.
-Bot generates answer via blenderbot. I convert original model into ONNX, then quantized it.
+
+Bot generates answer via blenderbot.
+
+I convert original model into ONNX, then quantized it.
+
 Model size (168mb) becomes less than half of original model size (350mb). Also it provides 2.5x faster cpu inference.
 
 App demo link: https://huggingface.co/spaces/remzicam/voicebot_german
