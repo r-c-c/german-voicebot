@@ -17,6 +17,8 @@ Deployed via Gradio.
 
 App demo link: https://huggingface.co/spaces/remzicam/voicebot_german
 
+App video link: https://www.youtube.com/watch?v=_xfTRkh47TY
+
 Model link: https://huggingface.co/remzicam/xs_blenderbot_onnx
 
 I use google API based libraries for speech recognition (speech to text), text to speech, and language translation.
