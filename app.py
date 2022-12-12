@@ -111,7 +111,7 @@ gr.Interface(
         ), 
     ],
     outputs=[
-        gr.Textbox(label="You said: ").style(css="{color: red}"),
+        gr.Textbox(label="You said: "),
         "html",
         gr.Textbox(label="AI said: "),
         gr.Textbox(label="AI said (English): "),
