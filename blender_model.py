@@ -1,8 +1,7 @@
 from transformers import (
     AutoConfig,
-    BlenderbotSmallForConditionalGeneration,
-    logging
-)
+    BlenderbotSmallForConditionalGeneration
+                          )
 from transformers.modeling_outputs import (
     Seq2SeqLMOutput,
     BaseModelOutput,
@@ -17,9 +16,6 @@ from torch.nn import Module
 from functools import reduce
 from operator import iconcat
 
-#supress huggingface warnings
-logging.set_verbosity_error()
-
 model_vocab_size=30000
 model_card="remzicam/xs_blenderbot_onnx"
 model_file_names=["blenderbot_small-90M-encoder-quantized.onnx",
@@ -30,6 +26,7 @@ class BlenderEncoder(Module):
     def __init__(self, encoder_sess):
         super().__init__()
         self.encoder = encoder_sess
+        self.main_input_name = "input_ids"
 
     def forward(
         self,
