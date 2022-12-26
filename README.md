@@ -8,6 +8,10 @@ model link: https://huggingface.co/remzicam/xs_blenderbot_onnx
 
 you can use the model with huggingface generate function with its all parameters
 
+To see inference speed comparison:
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/remzicam/xs_blenderbot_onnx/blob/main/inference_speed.ipynb)
+
 ## Usage
 
 With text generation pipeline
