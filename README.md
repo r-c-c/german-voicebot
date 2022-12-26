@@ -4,12 +4,7 @@ onnx quantized version of facebook/blenderbot_small-90M model (350 mb)
 Faster cpu inference
 
 ## INTRO
-
-Before usage:
-
-  • download blender_model.py script from files in this repo
-
-  • pip install onnxruntime
+model link: https://huggingface.co/remzicam/xs_blenderbot_onnx
 
 you can use the model with huggingface generate function with its all parameters
 
