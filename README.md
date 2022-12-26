@@ -1,12 +1,18 @@
-# xs_blenderbot_onnx (only 168 mb)
-onnx quantized version of facebook/blenderbot_small-90M model (350 mb)
+# xs_blenderbot_onnx
+onnx quantized version of facebook/blenderbot_small-90M model
 
-Faster cpu inference
+Faster cpu inference (2.5~3x inference speed)
+<center><img src="avg_inf_speed.png" width=250px></center>
+
+Halfed model size 350 mb -> 168 mb
+<center><img src="model_size_compariosn.png" width=250px></center>
 
 ## INTRO
 model link: https://huggingface.co/remzicam/xs_blenderbot_onnx
 
 you can use the model with huggingface generate function with its all parameters
+
+
 
 To see inference speed comparison:
 
