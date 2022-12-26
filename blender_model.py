@@ -1,26 +1,24 @@
-from transformers import (
-    AutoConfig,
-    BlenderbotSmallForConditionalGeneration
-                          )
-from transformers.modeling_outputs import (
-    Seq2SeqLMOutput,
-    BaseModelOutput,
-)
-from huggingface_hub import hf_hub_url, cached_download
-from onnxruntime import (GraphOptimizationLevel,
-                        InferenceSession,
-                        SessionOptions)
-
-from torch import from_numpy
-from torch.nn import Module
 from functools import reduce
 from operator import iconcat
+from typing import List
 
-model_vocab_size=30000
-model_card="remzicam/xs_blenderbot_onnx"
-model_file_names=["blenderbot_small-90M-encoder-quantized.onnx",
-                "blenderbot_small-90M-decoder-quantized.onnx",
-                "blenderbot_small-90M-init-decoder-quantized.onnx"]
+from huggingface_hub import hf_hub_download
+from onnxruntime import InferenceSession
+from torch import from_numpy
+from torch.nn import Module
+from transformers import (AutoConfig, BlenderbotSmallForConditionalGeneration,
+                          BlenderbotSmallTokenizer)
+from transformers.modeling_outputs import BaseModelOutput, Seq2SeqLMOutput
+
+model_vocab_size = 30000
+original_repo_id = "facebook/blenderbot_small-90M"
+repo_id = "remzicam/xs_blenderbot_onnx"
+model_file_names = [
+    "blenderbot_small-90M-encoder-quantized.onnx",
+    "blenderbot_small-90M-decoder-quantized.onnx",
+    "blenderbot_small-90M-init-decoder-quantized.onnx",
+]
+
 
 class BlenderEncoder(Module):
     def __init__(self, encoder_sess):
@@ -110,25 +108,53 @@ class BlenderDecoder(Module):
 class OnnxBlender(BlenderbotSmallForConditionalGeneration):
     """creates a Blender model using onnx sessions (encode, decoder & init_decoder)"""
 
-    def __init__(self, onnx_model_sessions):
-        config = AutoConfig.from_pretrained("facebook/blenderbot_small-90M")
-        config.vocab_size=model_vocab_size
+    def __init__(self, original_repo_id, repo_id, file_names):
+        config = AutoConfig.from_pretrained(original_repo_id)
+        config.vocab_size = model_vocab_size
         super().__init__(config)
 
-        assert len(onnx_model_sessions) == 3, "all three models should be given"
+        self.files = self.files_downloader(repo_id, file_names)
+        self.onnx_model_sessions = self.onnx_sessions_starter(self.files)
+        assert len(self.onnx_model_sessions) == 3, "all three models should be given"
 
-        encoder_sess, decoder_sess, decoder_sess_init = onnx_model_sessions
+        encoder_sess, decoder_sess, decoder_sess_init = self.onnx_model_sessions
 
         self.encoder = BlenderEncoder(encoder_sess)
         self.decoder = BlenderDecoder(decoder_sess)
         self.decoder_init = BlenderDecoderInit(decoder_sess_init)
+
+    @staticmethod
+    def files_downloader(repo_id: str, file_names: List[str]) -> List[str]:
+        """Downloads files from huggingface given file names
+
+        Args:
+
+            repo_id (str): repo name at huggingface.
+            file_names (List[str]): The names of the files in the repo.
+
+        Returns:
+            List[str]: Local paths of files
+        """
+        return [hf_hub_download(repo_id, file) for file in file_names]
+
+    @staticmethod
+    def onnx_sessions_starter(files: List[str]) -> List[object]:
+        """initiates onnx inference sessions
+
+        Args:
+            files (List[str]): Local paths of files
+
+        Returns:
+            List[object]: onnx sessions for each file
+        """
+        return [*map(InferenceSession, files)]
 
     def get_encoder(self):
         return self.encoder
 
     def get_decoder(self):
         return self.decoder
-    
+
     def forward(
         self,
         input_ids=None,
@@ -148,9 +174,9 @@ class OnnxBlender(BlenderbotSmallForConditionalGeneration):
         output_hidden_states=None,
         return_dict=None,
     ):
-        
+
         encoder_hidden_states = encoder_outputs[0]
-       
+
         if past_key_values is not None:
             if decoder_input_ids is not None:
                 decoder_input_ids = decoder_input_ids[:, -1:]
@@ -179,26 +205,51 @@ class OnnxBlender(BlenderbotSmallForConditionalGeneration):
 
         return Seq2SeqLMOutput(logits=logits, past_key_values=past_key_values)
 
-class ModelLoad:
-    def __init__(self, model_card,file_names):
-        self.model_card=model_card
-        self.file_names=file_names
 
-    def model_file_downloader(self,model_card,filename):
-        config_file_url = hf_hub_url(model_card, filename)
-        model_file = cached_download(config_file_url)
-        return model_file
+class TextGenerationPipeline:
+    """Pipeline for text generation of blenderbot model.
+    Returns:
+        str: generated text
+    """
 
-    def inference_session(self,file_name):
-        model_file=self.model_file_downloader(self.model_card,file_name)
-        options = SessionOptions()
-        options.graph_optimization_level = GraphOptimizationLevel.ORT_ENABLE_ALL
-        return InferenceSession(model_file,options=options)
+    # load tokenizer and the model
+    tokenizer = BlenderbotSmallTokenizer.from_pretrained(original_repo_id)
+    model = OnnxBlender(original_repo_id, repo_id, model_file_names)
 
-    def __call__(self,model_config):
-        model=model_config([*map(self.inference_session,
-                                self.file_names)])
-        return model
+    def __init__(self, **kwargs):
+        """Specififying text generation parameters.
+        For example: max_length=100 which generates text shorter than
+        100 tokens. Visit:
+        https://huggingface.co/docs/transformers/main_classes/text_generation
+        for more parameters
+        """
+        self.__dict__.update(kwargs)
 
-model_loader=ModelLoad(model_card,model_file_names)
-blender_onnx_model=model_loader(OnnxBlender)
+    def preprocess(self, text) -> str:
+        """Tokenizes input text.
+        Args:
+            text (str): user specified text
+        Returns:
+            torch.Tensor (obj): text representation as tensors
+        """
+        return self.tokenizer(text, return_tensors="pt")
+
+    def postprocess(self, outputs) -> str:
+        """Converts tensors into text.
+        Args:
+            outputs (torch.Tensor obj): model text generation output
+        Returns:
+            str: generated text
+        """
+        return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+    def __call__(self, text: str) -> str:
+        """Generates text from input text.
+        Args:
+            text (str): user specified text
+        Returns:
+            str: generated text
+        """
+        tokenized_text = self.preprocess(text)
+        output = self.model.generate(**tokenized_text, **self.__dict__)
+        return self.postprocess(output)
