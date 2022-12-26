@@ -8,7 +8,7 @@ model link: https://huggingface.co/remzicam/xs_blenderbot_onnx
 
 you can use the model with huggingface generate function with its all parameters
 
-# Usage
+## Usage
 
 With text generation pipeline
 
@@ -45,5 +45,5 @@ Or you can call the model
 i am well. how are you? what do you like to do in your free time?
 ```
 
-# Credits
+## Credits
 To create the model, I adopted codes from https://github.com/siddharth-sharma7/fast-Bart repository.
