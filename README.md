@@ -2,10 +2,10 @@
 onnx quantized version of facebook/blenderbot_small-90M model
 
 Faster cpu inference (2.5~3x inference speed)
-<center><img src="avg_inf_speed.png" width=250px></center>
+<center><img src="avg_inf_speed.png"></center>
 
 Halfed model size 350 mb -> 168 mb
-<center><img src="model_size_compariosn.png" width=250px></center>
+<center><img src="model_size_compariosn.png"></center>
 
 ## INTRO
 model link: https://huggingface.co/remzicam/xs_blenderbot_onnx
