@@ -1,6 +1,3 @@
----
-license: other
----
 # xs_blenderbot_onnx (only 168 mb)
 onnx quantized version of facebook/blenderbot_small-90M model (350 mb)
 
