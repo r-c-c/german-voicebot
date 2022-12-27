@@ -6,6 +6,8 @@ quantized and ONNX version of facebook/blenderbot_small-90M model huggingface
 &bull; Transformers models can be resource-intensive, requiring significant computational power and memory to run. This can make them difficult to deploy in resource-constrained environments, such as on mobile devices or on edge devices with limited processing capabilities.
 <br>&bull; quantized and ONNX version of the Transformers model, you have made it possible to run the model more efficiently and with lower resource requirements.
 
+# Model Benefits 
+
 Faster cpu inference (2.5~3x inference speed)
 <center><img src="avg_inf_speed.png"></center>
 
