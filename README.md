@@ -1,5 +1,10 @@
 # xs_blenderbot_onnx
-onnx quantized version of facebook/blenderbot_small-90M model
+quantized and ONNX version of facebook/blenderbot_small-90M model huggingface
+
+# Business Problem
+
+&bull; Transformers models can be resource-intensive, requiring significant computational power and memory to run. This can make them difficult to deploy in resource-constrained environments, such as on mobile devices or on edge devices with limited processing capabilities.
+<br>&bull; quantized and ONNX version of the Transformers model, you have made it possible to run the model more efficiently and with lower resource requirements.
 
 Faster cpu inference (2.5~3x inference speed)
 <center><img src="avg_inf_speed.png"></center>
@@ -7,11 +12,9 @@ Faster cpu inference (2.5~3x inference speed)
 Halfed model size 350 mb -> 168 mb
 <center><img src="model_size_compariosn.png"></center>
 
-## INTRO
 model link: https://huggingface.co/remzicam/xs_blenderbot_onnx
 
 you can use the model with huggingface generate function with its all parameters
-
 
 
 To see inference speed comparison:
@@ -54,6 +57,14 @@ Or you can call the model
 >>>print(response)
 i am well. how are you? what do you like to do in your free time?
 ```
+
+# Tools used
+
+<br>&bull; pytorch 
+<br>&bull; onnx (model conversion)
+<br>&bull; onnxruntime (model inference)
+<br>&bull; transformers (chatbot model)
+<br>&bull; huggingface hub (model uploading)
 
 ## Credits
 To create the model, I adopted codes from https://github.com/siddharth-sharma7/fast-Bart repository.
